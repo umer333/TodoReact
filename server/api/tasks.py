@@ -51,10 +51,9 @@ async def get_tasks(data : dict ,db: Session = Depends(get_db), Authorization : 
 @router.post('/add_task/', status_code=200)
 async def add_task(data : dict, db : Session = Depends(get_db), Authorization: Union[str, None]= Header(default=None)):
     try:
-
         user_obj = validate_token(db, Authorization)
         if user_obj:
-            if data['title'] == None or data['start_time'] == None or data['end_time'] == None or data['description'] == None:
+            if data['title'] == None or data['start_time'] == None or data['end_time'] == None:
                 return response(status=400, message="Fields are missing")
             new_task = Tasks(title=data['title'], start_time=data['start_time'], end_time=data['end_time'], description=data['description'], user_id=user_obj.id)
             db.add(new_task)
@@ -63,4 +62,56 @@ async def add_task(data : dict, db : Session = Depends(get_db), Authorization: U
         return response(status=403,message="Request Forbidden")
     except Exception as e:
         return response(status=400,message=str(e))
+
+
+
+@router.delete('/delete_task/')
+async def delete_task(task_id: str, db:Session = Depends(get_db), Authorization: Union[str, None]= Header(default=None)):
+    user_obj = validate_token(db, Authorization)
+    if user_obj:
+        task  = db.query(Tasks).filter(Tasks.id == task_id, Tasks.user_id == user_obj.id)
+        if task.first():
+            task.delete()
+            db.commit()
+            return response(status=202, message="Task Deleted")
+        return response(status=400, message="Task not found.")
+    return response(status=403, message="Request Forbidden")
+
+@router.get('/get_task/')
+async def get_task(task_id: str, db:Session = Depends(get_db), Authorization: Union[str, None]= Header(default=None)):
+    user_obj = validate_token(db, Authorization)
+    if user_obj:
+        task  = db.query(Tasks).filter(Tasks.id == task_id, Tasks.user_id == user_obj.id).one_or_none()
+        if task:
+            data_dict = {
+                "id": task.id,
+                "title": task.title,
+                "start_time": task.start_time,
+                "end_time": task.end_time,
+                "description": task.description
+            }
+            return response(status=200, message="Task found", body=data_dict)
+        return response(status=400, message="Task not found.")
+    return response(status=403, message="Request Forbidden")
+
+
+@router.put('/update_task/')
+async def update_task(data: dict, db:Session = Depends(get_db), Authorization: Union[str, None]= Header(default=None)):
+    try:
+        user_obj = validate_token(db, Authorization)
+        if user_obj:
+            task = db.query(Tasks).filter(Tasks.id == data['task_id'], Tasks.user_id == user_obj.id)
+            if task.first():
+                task.update(
+                {Tasks.title : data['title'],
+                Tasks.start_time : data['start_time'],
+                Tasks.end_time: data['end_time'],
+                Tasks.description: data['start_time']}
+            )
+            db.commit()
+
+            return response(status=200, message="Task updated")
+        return response(status=404, message="Task not found.")
+    except:
+        return response(status=500, message="Invalid Values")
 
