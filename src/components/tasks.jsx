@@ -9,7 +9,8 @@ export const events = (data) => {
       "title": item.title,
       "start": item.start_time,
       "end": item.end_time,
-      "id": item.id
+      "id": item.id,
+      "description": item.description
   }
   event.push(signle_event)
 

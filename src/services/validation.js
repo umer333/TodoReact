@@ -1,7 +1,7 @@
 import * as Yup from "yup"
 
 const loginSchema=Yup.object().shape({
-    user: Yup.string().min(4,'Username must be more than 4 character!').required('Username is required!'),
+    user: Yup.string().required('Username is required!'),
     password: Yup.string().required('Password is required!')
 })
 

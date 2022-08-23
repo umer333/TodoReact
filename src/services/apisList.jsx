@@ -19,6 +19,14 @@ export const signin = (username, password) => {
 })
 }
 
+export const get_task = (id) => {
+    return axios.get(`${BACKEND_URL}/get_task/?task_id=${id}`,{
+        headers: {
+            'Authorization' : `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+}
+
 export const get_tasks = (start_date, end_date) => {
     // console.log("ok",month,year)
     return axios.post(`${BACKEND_URL}/get_tasks/`,{
@@ -35,12 +43,36 @@ export const get_tasks = (start_date, end_date) => {
 export const add_tasks = (title, start_time, end_time, description) =>{
    return axios.post(`${BACKEND_URL}/add_task/`,{
         title: title ,
-        start_time: new Date(start_time),
-       end_time: new Date(end_time),
-       description: description
+        start_time: start_time,
+       end_time: end_time,
+       description: description || null
     },{
         headers: {
             'Authorization' : `Bearer ${localStorage.getItem('token')}`
         }
     })
 }
+
+export const delete_task = (id) => {
+    return axios.delete(`${BACKEND_URL}/delete_task/?task_id=${id}`,{
+        headers: {
+            'Authorization' : `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+}
+
+export const update_task = (id, title, start_time, end_time, description) => {
+    return axios.put(`${BACKEND_URL}/update_task/`,{
+        task_id: id,
+        title: title ,
+        start_time: start_time,
+        end_time: end_time,
+        description: description
+    },{
+        headers: {
+            'Authorization' : `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+
+}
+

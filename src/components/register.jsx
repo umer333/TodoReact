@@ -22,7 +22,7 @@ const Register = () => {
     return(
 
     <Formik initialValues={{
-        "username":"",
+        "user":"",
         "email":"",
         "company":"",
         "password":"",
